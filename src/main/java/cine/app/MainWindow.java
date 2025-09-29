@@ -20,6 +20,8 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
+import cine.ui.PeliculaEditarDialog;
+import cine.ui.PeliculaEliminarDialog;
 import cine.ui.PeliculaForm;
 
 public class MainWindow extends JFrame{
@@ -39,13 +41,24 @@ public class MainWindow extends JFrame{
                 BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(230,230,230)),
                 new EmptyBorder(8, 12, 8, 12)
         ));
-
+        //AGREGAR
         var btnAgregar = crearBotonToolbar("➕ Agregar (Ctrl+N)", "Agregar una nueva pelicula");
         btnAgregar.addActionListener(e -> new PeliculaForm(this).setVisible(true));
         btnAgregar.setMnemonic('A');
 
+        //MODIFICAR
+        var btnEditar = crearBotonToolbar("✏️ Modificar (Ctrl+E)", "Modificar una pelIcula existente");
+        btnEditar.addActionListener(e -> new PeliculaEditarDialog(this).setVisible(true));
+        btnEditar.setMnemonic('M');
+
+        //ELIMINAR
+        var btnEliminar = crearBotonToolbar("🗑️ Eliminar (Del)", "Eliminar una pelIcula existente");
+        btnEliminar.addActionListener(e -> new PeliculaEliminarDialog(this).setVisible(true));
+        btnEliminar.setMnemonic('E');
+
         var im = toolbar.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         var am = toolbar.getActionMap();
+
         im.put(KeyStroke.getKeyStroke("control N"), "new");
         am.put("new", new AbstractAction() {
             @Override public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -53,8 +66,25 @@ public class MainWindow extends JFrame{
             }
         });
 
+        im.put(KeyStroke.getKeyStroke("control E"), "edit");
+        am.put("edit", new AbstractAction() {
+            @Override public void actionPerformed(java.awt.event.ActionEvent e) { 
+                btnEditar.doClick(); 
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke("DELETE"), "delete");
+        am.put("delete", new AbstractAction() {
+            @Override public void actionPerformed(java.awt.event.ActionEvent e) { 
+                btnEliminar.doClick();
+            }
+        });
+
         toolbar.add(btnAgregar);
         toolbar.addSeparator();
+        toolbar.add(btnEditar);
+        toolbar.addSeparator();
+        toolbar.add(btnEliminar);
 
         add(toolbar, BorderLayout.NORTH);
 
@@ -63,9 +93,9 @@ public class MainWindow extends JFrame{
         header.setBorder(new EmptyBorder(20, 24, 10, 24));
         header.setBackground(Color.WHITE);
 
-        var lblTitulo = new JLabel("Cartelera – Modulo de Altas");
+        var lblTitulo = new JLabel("Cartelera – Modulo de Gestion");
         lblTitulo.setFont(lblTitulo.getFont().deriveFont(Font.BOLD, 22f));
-        var lblSub = new JLabel("Registra peliculas con validaciones. Edicion y listados llegaran en las siguientes etapas.");
+        var lblSub = new JLabel("Agregar, modificar y eliminar películas. Pronto mas funciones!");
         lblSub.setForeground(new Color(90, 90, 90));
         
         header.add(lblTitulo, BorderLayout.NORTH);
@@ -76,7 +106,7 @@ public class MainWindow extends JFrame{
         // ====== CONTENIDO (placeholder) ======
         var contenido = new JPanel(new GridBagLayout());
         contenido.setBorder(new EmptyBorder(30, 24, 24, 24));
-        var msg = new JLabel("Usa el botón “➕ Agregar (Ctrl+N)” para registrar una pelicula.");
+        var msg = new JLabel("Usa el toolbar: ➕ Agregar (Ctrl+N), ✏️ Modificar (Ctrl+E), 🗑️ Eliminar (Del).");
         msg.setFont(msg.getFont().deriveFont(Font.PLAIN, 16f));
         msg.setForeground(new Color(70, 70, 70));
         contenido.add(msg, new GridBagConstraints());

@@ -19,8 +19,12 @@ Probar conexion:
 echo "SHOW DATABASES;" | docker exec -i cine_mysql sh -lc 'MYSQL_PWD="$MYSQL_PASSWORD" mysql -u "$MYSQL_USER"'
 ```
 
-Detenner y limpiar contenedores:
+Detener y limpiar contenedores:
 ```bash
 docker compose -f docker/docker-compose.yml down -v
 
+```
+Despues de actualkizar, limpiar y recompilar
+```bash
+mvn clean compile
 
