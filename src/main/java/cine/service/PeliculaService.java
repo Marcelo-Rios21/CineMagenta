@@ -1,11 +1,16 @@
 package cine.service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import cine.dao.PeliculaDao;
 import cine.model.Pelicula;
 
 public class PeliculaService {
+
+    private static final Set<String> GENEROS_VALIDOS = Set.of(
+    "ACCION","DRAMA","COMEDIA","ANIMACION","TERROR","CIENCIA_FICCION");
     private final PeliculaDao dao = new PeliculaDao();
 
     public long agregar(Pelicula p) throws Exception {
@@ -51,5 +56,35 @@ public class PeliculaService {
         if (filas != 1) {
             throw new IllegalStateException("No se encontró la pelicula a eliminar (id=" + id + ").");
         }
+    }
+
+    public List<Pelicula> listarTodas() throws Exception {
+    return dao.findAll();  
+    }
+
+    public List<Pelicula> listarPorFiltros(String genero, Integer anioDesde, Integer anioHasta) throws Exception {
+        Integer desde = anioDesde;
+        Integer hasta = anioHasta;
+
+        if (desde != null && (desde < 1900 || desde > 2100)) {
+            throw new IllegalArgumentException("El año 'desde' debe estar entre 1900 y 2100.");
+        }
+        if (hasta != null && (hasta < 1900 || hasta > 2100)) {
+            throw new IllegalArgumentException("El año 'hasta' debe estar entre 1900 y 2100.");
+        }
+        if (desde != null && hasta != null && desde > hasta) {
+            throw new IllegalArgumentException("El año 'desde' no puede ser mayor que 'hasta'.");
+        }
+
+        String g = (genero == null) ? null : genero.trim();
+        if (g == null || g.isEmpty() || "TODOS".equalsIgnoreCase(g)) {
+            g = null;
+        } else {
+            g = g.toUpperCase();
+            if (!GENEROS_VALIDOS.contains(g)) {
+                throw new IllegalArgumentException("Genero invalido. Valores permitidos: " + GENEROS_VALIDOS);
+            }
+        }
+        return dao.findByCriteria(g, desde, hasta);
     }
 }

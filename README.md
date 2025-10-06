@@ -24,7 +24,7 @@ Detener y limpiar contenedores:
 docker compose -f docker/docker-compose.yml down -v
 
 ```
-Despues de actualkizar, limpiar y recompilar
+Despues de actualizar, limpiar y recompilar
 ```bash
 mvn clean compile
 

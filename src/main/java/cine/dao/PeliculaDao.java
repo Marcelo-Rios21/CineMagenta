@@ -1,6 +1,8 @@
 package cine.dao;
 
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import cine.db.ConnectionFactory;
@@ -35,6 +37,12 @@ public class PeliculaDao {
             DELETE FROM Cartelera
             WHERE id = ?
             """;
+
+    private static final String SQL_FIND_ALL = """
+        SELECT id, titulo, director, anio, duracion_min, genero
+        FROM Cartelera
+        ORDER BY anio DESC, titulo ASC
+        """;
 
     public long insertar(Pelicula p) throws Exception {
         p.validar();
@@ -110,6 +118,62 @@ public class PeliculaDao {
             return ps.executeUpdate(); // 0 = no existía; 1 = eliminado
         }
     }
+
+    public List<Pelicula> findAll() throws Exception {
+        try (var con = ConnectionFactory.getConnection();
+            var ps  = con.prepareStatement(SQL_FIND_ALL);
+            var rs  = ps.executeQuery()) {
+            var list = new ArrayList<Pelicula>();
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+            return list;
+        }
+    }
+
+    public List<Pelicula> findByCriteria(String genero, Integer anioDesde, Integer anioHasta) throws Exception {
+        var sql = new StringBuilder("""
+                SELECT id, titulo, director, anio, duracion_min, genero
+                FROM Cartelera
+                WHERE 1=1
+                """);
+
+        var params = new ArrayList<Object>();
+
+        if (genero != null && !genero.isBlank() && !"TODOS".equalsIgnoreCase(genero)) {
+            sql.append(" AND genero = ? ");
+            params.add(genero.toUpperCase());
+        }
+        if (anioDesde != null) {
+            sql.append(" AND anio >= ? ");
+            params.add(anioDesde);
+        }
+        if (anioHasta != null) {
+            sql.append(" AND anio <= ? ");
+            params.add(anioHasta);
+        }
+
+        sql.append(" ORDER BY anio DESC, titulo ASC ");
+
+        try (var con = ConnectionFactory.getConnection();
+            var ps  = con.prepareStatement(sql.toString())) {
+
+            for (int i = 0; i < params.size(); i++) {
+                Object v = params.get(i);
+                if (v instanceof Integer iv) ps.setInt(i + 1, iv);
+                else                         ps.setString(i + 1, v.toString());
+            }
+
+            try (var rs = ps.executeQuery()) {
+                var list = new ArrayList<Pelicula>();
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+                return list;
+            }
+        }
+    }
+
 
     private Pelicula mapRow(java.sql.ResultSet rs) throws java.sql.SQLException {
         var p = new Pelicula();

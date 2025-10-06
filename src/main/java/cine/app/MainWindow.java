@@ -23,6 +23,7 @@ import javax.swing.border.EmptyBorder;
 import cine.ui.PeliculaEditarDialog;
 import cine.ui.PeliculaEliminarDialog;
 import cine.ui.PeliculaForm;
+import cine.ui.PeliculaListDialog;
 
 public class MainWindow extends JFrame{
     public MainWindow() {
@@ -51,6 +52,11 @@ public class MainWindow extends JFrame{
         btnEditar.addActionListener(e -> new PeliculaEditarDialog(this).setVisible(true));
         btnEditar.setMnemonic('M');
 
+        //LISTAR
+        var btnListar = crearBotonToolbar("📋 Listar (Ctrl+L)", "Listar peliculas con filtros");
+        btnListar.addActionListener(e -> new PeliculaListDialog(this).setVisible(true));
+        btnListar.setMnemonic('L');
+
         //ELIMINAR
         var btnEliminar = crearBotonToolbar("🗑️ Eliminar (Del)", "Eliminar una pelIcula existente");
         btnEliminar.addActionListener(e -> new PeliculaEliminarDialog(this).setVisible(true));
@@ -73,6 +79,13 @@ public class MainWindow extends JFrame{
             }
         });
 
+        im.put(KeyStroke.getKeyStroke("control L"), "list");
+        am.put("list", new AbstractAction() {
+            @Override public void actionPerformed(java.awt.event.ActionEvent e) {
+                btnListar.doClick();
+            }
+        });
+
         im.put(KeyStroke.getKeyStroke("DELETE"), "delete");
         am.put("delete", new AbstractAction() {
             @Override public void actionPerformed(java.awt.event.ActionEvent e) { 
@@ -83,6 +96,8 @@ public class MainWindow extends JFrame{
         toolbar.add(btnAgregar);
         toolbar.addSeparator();
         toolbar.add(btnEditar);
+        toolbar.addSeparator();
+        toolbar.add(btnListar);
         toolbar.addSeparator();
         toolbar.add(btnEliminar);
 
@@ -106,7 +121,7 @@ public class MainWindow extends JFrame{
         // ====== CONTENIDO (placeholder) ======
         var contenido = new JPanel(new GridBagLayout());
         contenido.setBorder(new EmptyBorder(30, 24, 24, 24));
-        var msg = new JLabel("Usa el toolbar: ➕ Agregar (Ctrl+N), ✏️ Modificar (Ctrl+E), 🗑️ Eliminar (Del).");
+        var msg = new JLabel("Usa el toolbar: ➕ Agregar (Ctrl+N), ✏️ Modificar (Ctrl+E),📋 Listar (Ctrl+L), 🗑️ Eliminar (Del).");
         msg.setFont(msg.getFont().deriveFont(Font.PLAIN, 16f));
         msg.setForeground(new Color(70, 70, 70));
         contenido.add(msg, new GridBagConstraints());
